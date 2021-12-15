@@ -23,15 +23,19 @@ class IdealRocket(AbstractRocketStatus):
 
         if not self.out_of_liquid:
 
-            return 0.001
+            return 0.000001
 
         if not self.out_of_gas:
 
-            return 0.001
+            return 0.000001
 
         else:
 
             return 0.01
+
+    def evaluate_pressure_losses_beta(self):
+
+        return 0.
 
     @property
     def liquid_properties_class(self):
@@ -46,4 +50,8 @@ if __name__ == "__main__":
 
     ir = IdealRocket(P_0=1, T_0=25, fill_start=0.3)
     ir.calculate()
-    ir.print_trajectory()
+    ir.print_over_time()
+    ir.print_over_time(dynamic_element="v")
+    ir.print_over_time(dynamic_element="a")
+    ir.print_over_time("pressure")
+    ir.print_over_time("m_dot")

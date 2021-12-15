@@ -180,7 +180,13 @@ class AbstractRocketStatus(ABC):
             "m_dot": self.__m_dot,
             "level": self.__fill_perc,
             "pressure": self.gas.get_variable("P"),
-            "dynamics": self.__dynamics
+            "dynamics": {
+
+                "a": self.__dynamics["a"],
+                "v": self.__dynamics["v"],
+                "z": self.__dynamics["z"]
+
+            }
 
         })
         self.__dynamics_report[-1].update(self.other_report_dict())
@@ -201,21 +207,64 @@ class AbstractRocketStatus(ABC):
 
         return nozzle_force - gravity + self.calculate_external_forces()
 
-    def print_trajectory(self):
+    def print_over_time(self, element_name="dynamics", dynamic_element="z"):
 
         t_list = list()
-        z_list = list()
+        y_list = list()
 
         for element in self.__dynamics_report:
 
             t_list.append(element["time"])
-            z_list.append(element["dynamics"]["z"])
 
-        plt.plot(t_list, z_list, label="optimal")
+            if element_name == "dynamics":
 
-        plt.xlabel("time [s]")
-        plt.ylabel("position [m]")
+                y_list.append(element[element_name][dynamic_element])
+
+            else:
+
+                y_list.append(element[element_name])
+
+        plt.plot(t_list, y_list, label="optimal")
+
+        plt.xlabel(self.__return_label("time"))
+        plt.ylabel(self.__return_label(element_name, dynamic_element))
         plt.show()
+
+    def __return_label(self, element_name, dynamic_element="z"):
+
+        if element_name == "dynamics":
+
+            if dynamic_element == "z":
+
+                return "position [m]"
+
+            elif dynamic_element == "v":
+
+                return "velocity [m/s]"
+
+            else:
+
+                return "acceleration [m/s^2]"
+
+        elif element_name == "time":
+
+            return "time [s]"
+
+        elif element_name == "m_dot":
+
+            return "flow rate [kg/s]"
+
+        elif element_name == "level":
+
+            return "water level [%]"
+
+        elif element_name == "pressure":
+
+            return "internal pressure [MPa]"
+
+        else:
+
+            return element_name
 
     def evaluate_pressure_losses_beta(self):
 
